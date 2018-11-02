@@ -13,10 +13,8 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
     const price = req.body.price;
+    Product.create()
 
-    const product = new Product(null, title, imageUrl, description, price);
-    product.save();
-    res.redirect('/');
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -56,7 +54,6 @@ exports.postDeleteProduct = (req, res, next) => {
     res.redirect('/admin/products')
 
 };
-
 
 exports.getProducts = (req, res, next) => {
     Product.fetchAll(products => {
