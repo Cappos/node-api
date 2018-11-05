@@ -13,7 +13,7 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
     const price = req.body.price;
-    const product = new Product(title, price, description, imageUrl, null, req.user._id);
+    const product = new Product({title: title, price: price, description: description, imageUrl: imageUrl, userId: req.user});
     product.save()
         .then(response => {
             console.log('Created product');
@@ -52,19 +52,26 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
     const updatedPrice = req.body.price;
-    const products = new Product(updatedTitle, updatedPrice, updatedDescription, updatedImageUrl, prodId);
-
-    products.save().then(result => {
-        console.log('UPDATED PRODUCT!');
-        res.redirect('/admin/products');
-    }).catch(err => {
-        console.log(err);
-    });
+    Product.findById(prodId)
+        .then(product => {
+            product.title = updatedTitle;
+            product.imageUrl = updatedImageUrl;
+            product.description = updatedDescription;
+            product.price = updatedPrice;
+            return product.save();
+        })
+        .then(result => {
+            console.log('UPDATED PRODUCT!');
+            res.redirect('/admin/products');
+        })
+        .catch(err => {
+            console.log(err);
+        });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteById(prodId).then(() => {
+    Product.findByIdAndRemove(prodId).then(() => {
         console.log('DESTROYED PRODUCT');
         res.redirect('/admin/products')
     }).catch(err => {
@@ -74,7 +81,8 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
+        // .populate('userId')
         .then(products => {
             res.render('admin/products', {
                 prods: products,
