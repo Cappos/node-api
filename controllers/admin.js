@@ -36,9 +36,10 @@ exports.postAddProduct = (req, res, next) => {
         });
     }
 
-    const imageUrl = image.filePath;
+    const imageUrl = image.path;
     const errors = validationResult(req);
 
+    console.log('image path', image);
     if (!errors.isEmpty()) {
         console.log(errors.array());
         return res.status(422).render('admin/edit-product', {
