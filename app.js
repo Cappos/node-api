@@ -13,6 +13,8 @@ const MONGO_URI = 'mongodb://127.0.0.1:27017/node-complete';
 
 
 const errorController = require('./controllers/error');
+const shopController = require('./controllers/shop');
+const isAuth = require('./middleware/is-auth');
 // const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
@@ -65,12 +67,11 @@ app.use(
         store: store
     })
 );
-app.use(csrfProtection);
+
 app.use(flash());
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = req.csrfToken();
     next();
 });
 
@@ -90,6 +91,14 @@ app.use((req, res, next) => {
         .catch(err => {
             next(new Error(err));
         });
+});
+
+app.post('/create-order', isAuth, shopController.postOrder);
+
+app.use(csrfProtection);
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
 });
 
 app.use('/admin', adminRoutes);
